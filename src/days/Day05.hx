@@ -20,8 +20,7 @@ enum OpMode {
 }
 
 class Day05 {
-	static function run(input:Int):Int {
-		var memory = File.getContent("data/day05.txt").split(",").map(Std.parseInt);
+	public static function run(memory:Array<Int>, input:Array<Int>):Int {
 		var pointer = 0;
 		var output = [];
 
@@ -70,7 +69,7 @@ class Day05 {
 
 					rset(param(), v);
 				case Input:
-					rset(param(), input);
+					rset(param(), input.shift());
 				case Output:
 					output.push(rget(param(), cell.mode1));
 				case JumpTrue, JumpFalse:
@@ -97,10 +96,10 @@ class Day05 {
 	}
 
 	public static function part1():Int {
-		return run(1);
+		return run(File.getContent("data/day05.txt").split(",").map(Std.parseInt), [1]);
 	}
 
 	public static function part2():Int {
-		return run(5);
+		return run(File.getContent("data/day05.txt").split(",").map(Std.parseInt), [5]);
 	}
 }
