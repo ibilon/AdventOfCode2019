@@ -7,7 +7,7 @@ class Day03 {
 		return a < 0 ? -a : a;
 	}
 
-	static function compute(dist:(steps:Int, x:Int, y:Int) -> Int):Int {
+	static function run(dist:(steps:Int, x:Int, y:Int) -> Int):Int {
 		var wires = File.getContent("data/day03.txt").split("\n").map(a -> a.split(",").map(e -> {dir: e.substr(0, 1), dist: Std.parseInt(e.substr(1))}));
 		var map = new Map<String, Map<Int, Int>>();
 
@@ -75,10 +75,10 @@ class Day03 {
 	}
 
 	public static function part1():Int {
-		return compute((steps, x, y) -> iabs(x) + iabs(y));
+		return run((steps, x, y) -> iabs(x) + iabs(y));
 	}
 
 	public static function part2():Int {
-		return compute((steps, x, y) -> steps);
+		return run((steps, x, y) -> steps);
 	}
 }

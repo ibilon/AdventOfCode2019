@@ -3,7 +3,7 @@ package days;
 class Day04 {
 	static inline var data = "278384-824795";
 
-	static function count(validRepeat:(c:Int) -> Bool):Int {
+	static function run(validRepeat:(c:Int) -> Bool):Int {
 		var range = data.split("-").map(Std.parseInt);
 		var value = 0;
 
@@ -42,10 +42,10 @@ class Day04 {
 	}
 
 	public static function part1():Int {
-		return count(c -> c >= 2);
+		return run(c -> c >= 2);
 	}
 
 	public static function part2():Int {
-		return count(c -> c == 2);
+		return run(c -> c == 2);
 	}
 }
