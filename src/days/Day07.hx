@@ -25,13 +25,13 @@ class Day07 {
 		return perms;
 	}
 
-	static function run(phaseOffset:Int):Int {
+	static function run(phaseOffset:Int):Float {
 		var memory = IntCodeVM.loadProgram("data/day07.txt");
-		var max = 0;
+		var max = 0.0;
 
 		for (phase in permutations(phaseOffset, phaseOffset + 4)) {
 			var amps = [for (i in 0...5) new IntCodeVM(memory, [phase[i]])];
-			var o = 0;
+			var o = 0.0;
 			var run = true;
 
 			while (run) {
@@ -55,11 +55,11 @@ class Day07 {
 		return max;
 	}
 
-	public static function part1():Int {
+	public static function part1():Float {
 		return run(0);
 	}
 
-	public static function part2():Int {
+	public static function part2():Float {
 		return run(5);
 	}
 }

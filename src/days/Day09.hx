@@ -1,17 +1,15 @@
 package days;
 
-class Day05 {
+class Day09 {
 	static function run(input:Int):Float {
-		var memory = IntCodeVM.loadProgram("data/day05.txt");
+		var memory = IntCodeVM.loadProgram("data/day09.txt");
 		var output = new IntCodeVM(memory, [input]).allOutput();
 
-		for (i in 0...output.length - 1) {
-			if (output[i] != 0) {
-				throw "test fail";
-			}
+		if (output.length != 1) {
+			throw "test fail";
 		}
 
-		return output[output.length - 1];
+		return output[0];
 	}
 
 	public static function part1():Float {
@@ -19,6 +17,6 @@ class Day05 {
 	}
 
 	public static function part2():Float {
-		return run(5);
+		return run(2);
 	}
 }

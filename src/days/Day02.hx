@@ -1,7 +1,7 @@
 package days;
 
 class Day02 {
-	static function run(memory:Array<Int>, noun:Int, verb:Int):Int {
+	static function run(memory:Array<Float>, noun:Int, verb:Int):Float {
 		var vm = new IntCodeVM(memory, []);
 		vm.memory[1] = noun;
 		vm.memory[2] = verb;
@@ -15,12 +15,12 @@ class Day02 {
 		return vm.memory[0];
 	}
 
-	public static function part1():Int {
+	public static function part1():Float {
 		var memory = IntCodeVM.loadProgram("data/day02.txt");
 		return run(memory, 12, 2);
 	}
 
-	public static function part2():Int {
+	public static function part2():Float {
 		var memory = IntCodeVM.loadProgram("data/day02.txt");
 
 		for (noun in 0...100) {
