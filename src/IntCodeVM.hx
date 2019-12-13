@@ -29,6 +29,10 @@ class IntCodeVM {
 		return parseProgram(File.getContent(path));
 	}
 
+	public static function runProgram(path:String):IntCodeVM {
+		return new IntCodeVM(loadProgram(path), []);
+	}
+
 	public static function validate() {
 		var values = [
 			days.Day02.part1(), days.Day02.part2(),
@@ -56,12 +60,14 @@ class IntCodeVM {
 	var inputs:Array<Float>;
 	var pointer:Int;
 	var base:Int;
+	var halted:Bool;
 
 	public function new(memory:Array<Float>, inputs:Array<Float>) {
 		this.memory = memory.copy();
 		this.inputs = inputs;
 		this.pointer = 0;
 		this.base = 0;
+		this.halted = false;
 	}
 
 	public function input(i:Float) {
@@ -82,6 +88,10 @@ class IntCodeVM {
 	}
 
 	public function output():Option<Float> {
+		if (halted) {
+			return None;
+		}
+
 		while (true) {
 			var cell = parseOpCode(memory[pointer++]);
 			switch (cell.opcode) {
@@ -112,6 +122,7 @@ class IntCodeVM {
 					var p1 = rget(param(), cell.mode1);
 					base += Std.int(p1);
 				case Halt:
+					halted = true;
 					return None;
 				case unknown:
 					throw 'unknown opcode "$unknown"';
