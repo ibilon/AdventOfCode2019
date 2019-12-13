@@ -25,6 +25,31 @@ class Day13 {
 	}
 
 	public static function part2():Int {
-		return 0;
+		var vm = IntCodeVM.runProgram("data/day13.txt");
+		vm.memory[0] = 2;
+
+		var score = 0;
+		var paddle = 0;
+
+		while (true) {
+			switch ([vm.output(), vm.output(), vm.output()]) {
+				case [Some(s), Some(0), Some(-1)]:
+					score = Std.int(s);
+
+				case [Some(3), Some(_), Some(x)]:
+					paddle = Std.int(x);
+
+				case [Some(4), Some(_), Some(x)]:
+					vm.input(Reflect.compare(x, paddle));
+
+				case [Some(_), Some(_), Some(_)]:
+
+				case [None, None, None]:
+					return score;
+
+				default:
+					throw "unexpected output";
+			}
+		}
 	}
 }
