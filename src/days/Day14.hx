@@ -3,8 +3,13 @@ package days;
 import sys.io.File;
 import sys.io.Process;
 
+typedef Data = {
+	rules:Array<{i:Map<String, Int>, n:String, q:Int}>,
+	components:Map<String, Bool>,
+}
+
 class Day14 {
-	public static function part1():Int {
+	static function parse():Data {
 		var rules = new Array<{i:Map<String, Int>, n:String, q:Int}>();
 		var components = new Map<String, Bool>();
 
@@ -20,31 +25,71 @@ class Day14 {
 			rules.push({i: i, n: r.n, q: r.q});
 		}
 
-		rules.push({i: [], n: "ORE", q: 1});
-		rules.push({i: ["FUEL" => 1], n: "", q: 0});
+		return {rules: rules, components: components};
+	}
 
-		var prog = new StringBuf();
-		prog.add('min: rule_${rules.length - 2};\n\n');
+	static function printRules(prog:StringBuf, data:Data) {
+		var i = 0;
+		for (c in data.components.keys()) {
+			var req = [
+				for (r in 0...data.rules.length)
+					if (data.rules[r].i.exists(c)) '${data.rules[r].i[c]} rule_$r'
+			].join(" - ");
+			var prod = [
+				for (r in 0...data.rules.length)
+					if (data.rules[r].n == c) '${data.rules[r].q} rule_$r'
+			].join(" + ");
+			prog.add('  c${++i}: $prod - $req >= 0\n');
+		}
+	}
 
-		for (c in components.keys()) {
-			var req = [for (r in 0...rules.length) if (rules[r].i.exists(c)) '${rules[r].i[c]} rule_$r'].join(" + ");
-			var prod = [for (r in 0...rules.length) if (rules[r].n == c) '${rules[r].q} rule_$r'].join(" + ");
-			prog.add('$prod >= $req;\n');
+	static function solve(path:String):Int {
+		var process = new Process("glpsol", ["--lp", path, "-o", "/dev/stdout"]);
+		var output = process.stdout.readAll().toString().split("\n");
+		process.exitCode();
+
+		for (line in output) {
+			if (StringTools.startsWith(line, "Objective:  obj = ")) {
+				return Std.parseInt(line.substring(line.indexOf("=") + 2, line.indexOf("(")));
+			}
 		}
 
-		prog.add('\nrule_${rules.length - 1} = 1;\n\n');
-		prog.add('int ${[for (r in 0...rules.length) 'rule_$r'].join(", ")};\n');
+		throw "no solution found";
+	}
 
-		var path = "/tmp/aoc_day14.lp";
+	public static function part1() {
+		var data = parse();
+		data.rules.push({i: [], n: "ORE", q: 1});
+		data.rules.push({i: ["FUEL" => 1], n: "", q: 0});
+
+		var prog = new StringBuf();
+		prog.add('Minimize\n  obj: rule_${data.rules.length - 2}\nSubject To\n');
+		prog.add('  c0: rule_${data.rules.length - 1} = 1\n');
+		printRules(prog, data);
+		prog.add("General\n");
+		prog.add([for (r in 0...data.rules.length) '  rule_$r'].join("\n"));
+		prog.add("\nEnd\n");
+
+		var path = "/tmp/aoc_day14_part1.cplex";
 		File.saveContent(path, prog.toString());
-
-		var process = new Process("lp_solve", ["-S1", path]);
-		var out = StringTools.trim(process.stdout.readAll().toString());
-
-		return Std.parseInt(out.substring(out.indexOf(":") + 1, out.indexOf(".")));
+		return solve(path);
 	}
 
 	public static function part2():Int {
-		return 0;
+		var data = parse();
+		data.rules.push({i: [], n: "ORE", q: 1});
+		data.rules.push({i: ["FUEL" => 1], n: "", q: 0});
+
+		var prog = new StringBuf();
+		prog.add('Maximize\n  obj: rule_${data.rules.length - 1}\nSubject To\n');
+		prog.add('  c0: rule_${data.rules.length - 2} = 1000000000000\n');
+		printRules(prog, data);
+		prog.add("General\n");
+		prog.add([for (r in 0...data.rules.length) '  rule_$r'].join("\n"));
+		prog.add("\nEnd\n");
+
+		var path = "/tmp/aoc_day14_part2.cplex";
+		File.saveContent(path, prog.toString());
+		return solve(path);
 	}
 }
