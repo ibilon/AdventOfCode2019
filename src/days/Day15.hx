@@ -42,7 +42,7 @@ class Day15 {
 		return a < b ? a : b;
 	}
 
-	public static function part1():Int {
+	static function run():{maze:Map<String, Int>, goal:Point} {
 		var runners = [
 			for (dir in [North, South, West, East])
 				{
@@ -93,10 +93,44 @@ class Day15 {
 			}
 		}
 
-		return maze[goal.toString()];
+		return {maze: maze, goal: goal};
+	}
+
+	public static function part1():Int {
+		var r = run();
+		return r.maze[r.goal.toString()];
 	}
 
 	public static function part2():Int {
-		return 0;
+		var r = run();
+		r.maze[r.goal.toString()] = -2;
+		var oxy = [r.goal];
+		var min = 0;
+
+		while (true) {
+			var noxy = [];
+
+			for (o in oxy) {
+				for (dir in [North, South, West, East]) {
+					var npos = o.applyDir(dir);
+
+					switch (r.maze[npos.toString()]) {
+						case -1, -2:
+
+						default:
+							r.maze[npos.toString()] = -2;
+							noxy.push(npos);
+					}
+				}
+			}
+
+			oxy = noxy;
+
+			if (oxy.length > 0) {
+				++min;
+			} else {
+				return min;
+			}
+		}
 	}
 }
