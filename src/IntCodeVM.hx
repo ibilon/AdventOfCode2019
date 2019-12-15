@@ -70,6 +70,14 @@ class IntCodeVM {
 		this.halted = false;
 	}
 
+	public function clone():IntCodeVM {
+		var vm = new IntCodeVM(memory, inputs);
+		vm.pointer = pointer;
+		vm.base = base;
+		vm.halted = halted;
+		return vm;
+	}
+
 	public function input(i:Float) {
 		inputs.push(i);
 	}
