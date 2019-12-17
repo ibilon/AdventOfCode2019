@@ -49,6 +49,33 @@ class Day16 {
 	}
 
 	public static function part2():Int {
-		return 0;
+		var idata = File.getContent("data/day16.txt").split("").map(Std.parseInt);
+
+		var data = [];
+		for (_ in 0...10000) {
+			for (i in idata) {
+				data.push(i);
+			}
+		}
+
+		var offset = 0;
+
+		for (i in 0...7) {
+			offset = offset * 10 + data[i];
+		}
+
+		for (_ in 0...100) {
+			for (i in 1...data.length - offset) {
+				data[data.length - i - 1] = (data[data.length - i] + data[data.length - i - 1]) % 10;
+			}
+		}
+
+		var result = 0;
+
+		for (i in 0...8) {
+			result = result * 10 + data[i + offset];
+		}
+
+		return result;
 	}
 }
