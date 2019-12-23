@@ -41,7 +41,7 @@ class Day07 {
 					switch (amp.output()) {
 						case Some(v):
 							o = v;
-						case None:
+						default:
 							run = false;
 					}
 				}

@@ -2,7 +2,7 @@ package days;
 
 import sys.io.File;
 
-typedef OrbitMap = Map<String, String>;
+private typedef OrbitMap = Map<String, String>;
 
 class Day06 {
 	static function pathToCom(map:OrbitMap, obj:String):Array<String> {

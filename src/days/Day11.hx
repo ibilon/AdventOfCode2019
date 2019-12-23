@@ -2,15 +2,14 @@ package days;
 
 import haxe.ds.HashMap;
 
-@:using(days.Day11.DirectionTools)
-enum Direction {
+private enum Direction {
 	Up;
 	Left;
 	Down;
 	Right;
 }
 
-class DirectionTools {
+private class DirectionTools {
 	public static function turnLeft(dir:Direction):Direction {
 		return switch (dir) {
 			case Up: Left;
@@ -30,7 +29,7 @@ class DirectionTools {
 	}
 }
 
-enum abstract Color(Int) to Int {
+private enum abstract Color(Int) to Int {
 	var Black = 0;
 	var White = 1;
 
@@ -43,7 +42,7 @@ enum abstract Color(Int) to Int {
 	}
 }
 
-class Point {
+private class Point {
 	public var x:Int;
 	public var y:Int;
 
@@ -101,8 +100,8 @@ class Day11 {
 					colored.set(pos, Std.int(color));
 
 					dir = switch (turn) {
-						case 0: dir.turnLeft();
-						case 1: dir.turnRight();
+						case 0: DirectionTools.turnLeft(dir);
+						case 1: DirectionTools.turnRight(dir);
 						default: throw "invalid turn output";
 					}
 
@@ -116,7 +115,7 @@ class Day11 {
 						colored.set(pos, Black);
 					}
 
-				case [None, None]:
+				case [Halted, Halted]:
 					return {
 						colored: colored,
 						min: new Point(min_x, min_y),

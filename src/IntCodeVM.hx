@@ -1,5 +1,4 @@
 import sys.io.File;
-import haxe.ds.Option;
 
 enum abstract OpCode(Int) to Int {
 	var Add = 1;
@@ -18,6 +17,12 @@ enum OpMode {
 	Position;
 	Immediate;
 	Relative;
+}
+
+enum Result {
+	Some(v:Float);
+	WaitingForInput;
+	Halted;
 }
 
 class IntCodeVM {
@@ -39,6 +44,12 @@ class IntCodeVM {
 			days.Day05.part1(), days.Day05.part2(),
 			days.Day07.part1(), days.Day07.part2(),
 			days.Day09.part1(), days.Day09.part2(),
+			days.Day11.part1(),                 -1,
+			days.Day13.part1(), days.Day13.part2(),
+			days.Day15.part1(), days.Day15.part2(),
+			days.Day17.part1(),                 -1,
+			days.Day19.part1(),                 -1,
+			days.Day23.part1(),                 -1,
 		];
 
 		var answers = [
@@ -46,6 +57,12 @@ class IntCodeVM {
 			  15097178,  1558663,
 			    225056, 14260332,
 			2890527621,    66772,
+			      1934,       -1,
+			       298,    13956,
+			       236,      368,
+			      5680,       -1,
+			       160,       -1,
+			     19040,       -1,
 		];
 
 		for (i in 0...values.length) {
@@ -57,21 +74,21 @@ class IntCodeVM {
 
 	public var memory:Array<Float>;
 
-	var inputs:Array<Float>;
+	var input_buffer:Array<Float>;
 	var pointer:Int;
 	var base:Int;
 	var halted:Bool;
 
-	public function new(memory:Array<Float>, inputs:Array<Float>) {
+	public function new(memory:Array<Float>, input_buffer:Array<Float>) {
 		this.memory = memory.copy();
-		this.inputs = inputs;
+		this.input_buffer = input_buffer;
 		this.pointer = 0;
 		this.base = 0;
 		this.halted = false;
 	}
 
 	public function clone():IntCodeVM {
-		var vm = new IntCodeVM(memory, inputs);
+		var vm = new IntCodeVM(memory, input_buffer);
 		vm.pointer = pointer;
 		vm.base = base;
 		vm.halted = halted;
@@ -79,7 +96,13 @@ class IntCodeVM {
 	}
 
 	public function input(i:Float) {
-		inputs.push(i);
+		input_buffer.push(i);
+	}
+
+	public function inputs(i:Array<Float>) {
+		for (v in i) {
+			input_buffer.push(v);
+		}
 	}
 
 	public function allOutput():Array<Float> {
@@ -89,15 +112,15 @@ class IntCodeVM {
 			switch (output()) {
 				case Some(v):
 					o.push(v);
-				case None:
+				default:
 					return o;
 			}
 		}
 	}
 
-	public function output():Option<Float> {
+	public function output():Result {
 		if (halted) {
-			return None;
+			return Halted;
 		}
 
 		while (true) {
@@ -117,7 +140,11 @@ class IntCodeVM {
 
 					rset(param(), cell.mode3, v);
 				case Input:
-					rset(param(), cell.mode1, inputs.shift());
+					if (input_buffer.length == 0) {
+						--pointer;
+						return WaitingForInput;
+					}
+					rset(param(), cell.mode1, input_buffer.shift());
 				case Output:
 					return Some(rget(param(), cell.mode1));
 				case JumpTrue, JumpFalse:
@@ -131,7 +158,7 @@ class IntCodeVM {
 					base += Std.int(p1);
 				case Halt:
 					halted = true;
-					return None;
+					return Halted;
 				case unknown:
 					throw 'unknown opcode "$unknown"';
 			}

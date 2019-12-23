@@ -1,20 +1,20 @@
 package days;
 
-enum abstract Direction(Int) to Int {
+private enum abstract Direction(Int) to Int {
 	var North = 1;
 	var South = 2;
 	var West = 3;
 	var East = 4;
 }
 
-enum abstract Status(Int) to Int {
+private enum abstract Status(Int) to Int {
 	var Blocked = 0;
 	var Moved = 1;
 	var MovedToGoal = 2;
 }
 
 @:forward(x, y)
-abstract Point({x:Int, y:Int}) {
+private abstract Point({x:Int, y:Int}) {
 	public inline function new(x:Int, y:Int) {
 		this = {x: x, y: y};
 	}

@@ -15,7 +15,7 @@ class Day13 {
 						blocks.remove(id);
 					}
 
-				case [None, None, None]:
+				case [Halted, Halted, Halted]:
 					return Lambda.count(blocks);
 
 				default:
@@ -44,7 +44,7 @@ class Day13 {
 
 				case [Some(_), Some(_), Some(_)]:
 
-				case [None, None, None]:
+				case [Halted, Halted, Halted]:
 					return score;
 
 				default:

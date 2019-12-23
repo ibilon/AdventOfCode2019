@@ -3,7 +3,7 @@ package days;
 import sys.io.File;
 import sys.io.Process;
 
-typedef Data = {
+private typedef Data = {
 	rules:Array<{i:Map<String, Int>, n:String, q:Int}>,
 	components:Map<String, Bool>,
 }
