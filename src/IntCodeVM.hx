@@ -49,7 +49,7 @@ class IntCodeVM {
 			days.Day15.part1(), days.Day15.part2(),
 			days.Day17.part1(),                 -1,
 			days.Day19.part1(),                 -1,
-			days.Day23.part1(),                 -1,
+			days.Day23.part1(), days.Day23.part2(),
 		];
 
 		var answers = [
@@ -62,7 +62,7 @@ class IntCodeVM {
 			       236,      368,
 			      5680,       -1,
 			       160,       -1,
-			     19040,       -1,
+			     19040,    11041,
 		];
 
 		for (i in 0...values.length) {
