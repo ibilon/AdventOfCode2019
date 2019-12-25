@@ -2,91 +2,118 @@ package days;
 
 import sys.io.File;
 
-typedef AMap = {
-	final asteroids:Array<Array<Bool>>;
-	final width:Int;
-	final height:Int;
+private typedef Point = {
+	x:Float,
+	y:Float,
 }
 
 class Day10 {
-	static inline function iabs(a:Int):Int {
-		return a < 0 ? -a : a;
-	}
+	static function getVisibilityMap():Map<Point, Array<Array<Point>>> {
+		var data = File.getContent("data/day10.txt").split("\n");
+		var asteroids = new Array<Point>();
 
-	static function gcd(a:Int, b:Int):Int {
-		var a = iabs(a);
-		var b = iabs(b);
-
-		if (a == 0) {
-			return b;
-		}
-
-		if (b == 0) {
-			return a;
-		}
-
-		function divisors(i:Int) {
-			return [for (j in 1...i + 1) if (i % j == 0) j];
-		}
-
-		var da = divisors(a);
-		var db = divisors(b).filter(e -> da.indexOf(e) != -1);
-
-		return db[db.length - 1];
-	}
-
-	static function parse():AMap {
-		final asteroids = File.getContent("data/day10.txt").split("\n").map(e -> e.split("").map(e -> e == "#"));
-		final height = asteroids.length;
-		final width = asteroids[0].length;
-
-		return {asteroids: asteroids, height: height, width: width};
-	}
-
-	static function sights(map:AMap, x:Int, y:Int):Array<String> {
-		var angles = new Map<String, Bool>();
-
-		for (oy in 0...map.height) {
-			for (ox in 0...map.width) {
-				if ((ox == x && oy == y) || !map.asteroids[oy][ox]) {
-					continue;
+		for (y in 0...data.length) {
+			for (x in 0...data[y].length) {
+				if (data[y].charAt(x) == "#") {
+					asteroids.push({x: x, y: y});
 				}
-
-				var dx = ox - x;
-				var dy = oy - y;
-				var d = gcd(dx, dy);
-				dx = Std.int(dx / d);
-				dy = Std.int(dy / d);
-
-				angles.set('$dx $dy', true);
 			}
 		}
 
-		return [for (a in angles.keys()) a];
+		var visibilityMap = new Map<Point, Array<Array<Point>>>();
+
+		for (asteroid in asteroids) {
+			var map = new Map<String, Array<Point>>();
+
+			for (other in asteroids) {
+				if (other == asteroid) {
+					continue;
+				}
+
+				var rpos = {x: other.x - asteroid.x, y: other.y - asteroid.y};
+				var len = Math.sqrt(rpos.x * rpos.x + rpos.y * rpos.y);
+				rpos.x /= len;
+				rpos.y /= len;
+
+				var angle = if (rpos.x == 0 || rpos.y == 0) {
+					0.0;
+				} else {
+					var a = Math.acos(rpos.y < 0 ? -rpos.y : rpos.y) * 180 / Math.PI;
+
+					if (rpos.x > 0) {
+						if (rpos.y < 0) {
+							a;
+						} else {
+							180 - a;
+						}
+					} else {
+						if (rpos.y > 0) {
+							180 + a;
+						} else {
+							360 - a;
+						}
+					}
+				}
+
+				var id = Std.string(angle);
+
+				if (!map.exists(id)) {
+					map[id] = [];
+				}
+
+				map[id].push(other);
+			}
+
+			var angles = [for (a in map.keys()) a];
+			angles.sort((a, b) -> Reflect.compare(a, b));
+
+			for (a in angles) {
+				map[a].sort((a, b) -> Reflect.compare(a.x * a.x + a.y * a.y, b.x * b.x + b.y * b.y));
+			}
+
+			visibilityMap.set(asteroid, [for (a in angles) map[a]]);
+		}
+
+		return visibilityMap;
+	}
+
+	static function monitoringStation(map:Map<Point, Array<Array<Point>>>):Point {
+		var max = 0;
+		var p = null;
+
+		for (point => views in map) {
+			if (views.length > max) {
+				max = views.length;
+				p = point;
+			}
+		}
+
+		return p;
 	}
 
 	public static function part1() {
-		var map = parse();
-		var max = 0;
-
-		for (y in 0...map.height) {
-			for (x in 0...map.width) {
-				if (!map.asteroids[y][x]) {
-					continue;
-				}
-
-				var count = Lambda.count(sights(map, x, y));
-
-				if (count >= max) {
-					max = count;
-				}
-			}
+		var visibilityMap = getVisibilityMap();
+		var station = monitoringStation(visibilityMap);
+		for (p => a in visibilityMap) {
+			trace(p.x, p.y, a.length);
 		}
-
-		return max;
+		trace(station.x, station.y);
+		return visibilityMap[station].length;
 	}
 
 	public static function part2():Int {
-		return 0;
+		var visibilityMap = getVisibilityMap();
+		var station = monitoringStation(visibilityMap);
+		var i = 0;
+
+		while (true) {
+			for (a in visibilityMap[station]) {
+				var p = a.shift();
+
+				if (++i == 200) {
+					return Std.int(p.x) * 100 + Std.int(p.y);
+				}
+			}
+		}
 	}
 }
